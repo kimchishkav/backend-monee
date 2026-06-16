@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/money_manager
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+app:
+  jwt:
+    secret: "change-this-development-secret-key-money-manager-app-32bytes-min"
+    expiration-ms: 86400000
+
+  cors:
+    allowed-origins: "http://localhost:5173"

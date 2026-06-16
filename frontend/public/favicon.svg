@@ -1,0 +1,50 @@
+<svg width="512" height="180" viewBox="0 0 512 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="grad" x1="50" y1="30" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFB7D5"/>
+<stop offset="1" stop-color="#B892FF"/>
+</linearGradient>
+<linearGradient id="textGrad" x1="180" y1="50" x2="480" y2="120" gradientUnits="userSpaceOnUse">
+<stop stop-color="#B892FF"/>
+<stop offset="1" stop-color="#7C5CFF"/>
+</linearGradient>
+</defs>
+
+<circle cx="90" cy="90" r="70" fill="url(#grad)"/>
+
+<!-- ears -->
+<ellipse cx="40" cy="92" rx="22" ry="14" fill="#FFF8FB"/>
+<ellipse cx="140" cy="92" rx="22" ry="14" fill="#FFF8FB"/>
+<ellipse cx="45" cy="92" rx="10" ry="6" fill="#FFC8DF"/>
+<ellipse cx="135" cy="92" rx="10" ry="6" fill="#FFC8DF"/>
+
+<!-- wool -->
+<circle cx="65" cy="62" r="20" fill="#FFF8FB"/>
+<circle cx="90" cy="52" r="24" fill="#FFF8FB"/>
+<circle cx="118" cy="62" r="20" fill="#FFF8FB"/>
+<circle cx="90" cy="75" r="30" fill="#FFF8FB"/>
+
+<!-- face -->
+<ellipse cx="90" cy="105" rx="38" ry="28" fill="#FFF3F7"/>
+
+<circle cx="75" cy="100" r="4.5" fill="#6E5AAE"/>
+<circle cx="105" cy="100" r="4.5" fill="#6E5AAE"/>
+
+<circle cx="66" cy="114" r="6" fill="#FFD4E7"/>
+<circle cx="114" cy="114" r="6" fill="#FFD4E7"/>
+
+<rect x="84" y="104" width="12" height="6" rx="3" fill="#D39AC2"/>
+
+<path d="M84 112C86 117 94 117 96 112" stroke="#6E5AAE" stroke-width="3" stroke-linecap="round"/>
+
+<!-- heart badge -->
+<circle cx="135" cy="132" r="22" fill="#F3D8FF"/>
+<path d="M135 143C135 143 124 136 124 128C124 123 128 120 132 120C134 120 135 122 135 122C135 122 136 120 138 120C142 120 146 123 146 128C146 136 135 143 135 143Z" fill="white"/>
+
+<text x="180" y="112"
+font-family="Nunito, Poppins, Arial"
+font-size="72"
+font-weight="700"
+fill="url(#textGrad)">monee</text>
+
+</svg>
