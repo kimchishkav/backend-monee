@@ -24,7 +24,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public List<TransactionResponse> search(TransactionType type, Category category, Long accountId,
-                                              LocalDate from, LocalDate to) {
+                                             LocalDate from, LocalDate to) {
         var spec = TransactionSpecifications.search(currentUser.get(), type, category, accountId, from, to);
         var sort = org.springframework.data.domain.Sort.by("date", "createdAt").descending();
         return transactionRepository.findAll(spec, sort)
@@ -36,6 +36,30 @@ public class TransactionService {
         User user = currentUser.get();
         Account account = accountRepository.findByIdAndUser(request.accountId(), user)
                 .orElseThrow(() -> ApiException.notFound("Счет не найден"));
+
+        if (request.type() == TransactionType.TRANSFER) {
+            if (request.toAccountId() == null) {
+                throw ApiException.badRequest("Для перевода необходим целевой счет");
+            }
+            Account toAccount = accountRepository.findByIdAndUser(request.toAccountId(), user)
+                    .orElseThrow(() -> ApiException.notFound("Целевой счет не найден"));
+            account.setBalance(account.getBalance().subtract(request.amount()));
+            toAccount.setBalance(toAccount.getBalance().add(request.amount()));
+            accountRepository.save(account);
+            accountRepository.save(toAccount);
+
+            Transaction transaction = Transaction.builder()
+                    .user(user)
+                    .account(account)
+                    .toAccount(toAccount)
+                    .type(TransactionType.TRANSFER)
+                    .amount(request.amount())
+                    .date(request.date())
+                    .description(request.description())
+                    .build();
+            transactionRepository.save(transaction);
+            return TransactionResponse.from(transaction);
+        }
 
         if (request.type() == TransactionType.EXPENSE) {
             account.setBalance(account.getBalance().subtract(request.amount()));
@@ -54,7 +78,6 @@ public class TransactionService {
                 .description(request.description())
                 .build();
         transactionRepository.save(transaction);
-
         return TransactionResponse.from(transaction);
     }
 
@@ -65,13 +88,22 @@ public class TransactionService {
                 .orElseThrow(() -> ApiException.notFound("Операция не найдена"));
 
         Account account = transaction.getAccount();
-        if (transaction.getType() == TransactionType.EXPENSE) {
+        if (transaction.getType() == TransactionType.TRANSFER) {
+            // Откатываем: вернуть в fromAccount, снять с toAccount
             account.setBalance(account.getBalance().add(transaction.getAmount()));
+            accountRepository.save(account);
+            if (transaction.getToAccount() != null) {
+                Account toAccount = transaction.getToAccount();
+                toAccount.setBalance(toAccount.getBalance().subtract(transaction.getAmount()));
+                accountRepository.save(toAccount);
+            }
+        } else if (transaction.getType() == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance().add(transaction.getAmount()));
+            accountRepository.save(account);
         } else {
             account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+            accountRepository.save(account);
         }
-        accountRepository.save(account);
-
         transactionRepository.delete(transaction);
     }
 }

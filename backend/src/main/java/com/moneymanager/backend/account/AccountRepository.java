@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByUser(User user);
     List<Account> findByUserAndType(User user, AccountType type);
+    List<Account> findByUserAndStatus(User user, AccountStatus status);
     Optional<Account> findByIdAndUser(Long id, User user);
 }

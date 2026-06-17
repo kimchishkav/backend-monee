@@ -25,23 +25,36 @@ export function TransactionRow({
   onDelete?: (id: number) => void;
 }) {
   const isExpense = transaction.type === "EXPENSE";
+  const isTransfer = transaction.type === "TRANSFER";
+  const categoryLabel = transaction.category ? CATEGORY_LABELS[transaction.category] : null;
+  const emoji = isTransfer ? "↔️" : (transaction.category ? (CATEGORY_EMOJI[transaction.category] ?? "💳") : "💳");
+
+  const subtitle = isTransfer
+    ? `${transaction.accountName} → ${transaction.toAccountName ?? "?"}`
+    : `${categoryLabel ?? ""} • ${transaction.accountName}`;
+
+  const title = transaction.description
+    || (isTransfer ? `Перевод` : categoryLabel)
+    || "Операция";
 
   return (
     <div className="group flex items-center gap-3 py-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg">
-        {CATEGORY_EMOJI[transaction.category] ?? "💳"}
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${
+        isTransfer ? "bg-violet-50 dark:bg-violet-500/10" : "bg-brand-50 dark:bg-brand-500/10"
+      }`}>
+        {emoji}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-          {transaction.description || CATEGORY_LABELS[transaction.category]}
-        </p>
-        <p className="truncate text-xs text-gray-400 dark:text-gray-500">
-          {CATEGORY_LABELS[transaction.category]} • {transaction.accountName}
-        </p>
+        <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{title}</p>
+        <p className="truncate text-xs text-gray-400 dark:text-gray-500">{subtitle}</p>
       </div>
       <div className="text-right">
-        <p className={`text-sm font-semibold ${isExpense ? "text-gray-900 dark:text-gray-100" : "text-emerald-500"}`}>
-          {isExpense ? "−" : "+"}
+        <p className={`text-sm font-semibold ${
+          isTransfer ? "text-violet-600 dark:text-violet-400"
+          : isExpense ? "text-gray-900 dark:text-gray-100"
+          : "text-emerald-500"
+        }`}>
+          {isTransfer ? "" : isExpense ? "−" : "+"}
           {formatMoney(transaction.amount, currency)}
         </p>
         <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(transaction.date).toLocaleDateString("ru-RU")}</p>

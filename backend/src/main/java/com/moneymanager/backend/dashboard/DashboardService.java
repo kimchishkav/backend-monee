@@ -2,6 +2,7 @@ package com.moneymanager.backend.dashboard;
 
 import com.moneymanager.backend.account.Account;
 import com.moneymanager.backend.account.AccountRepository;
+import com.moneymanager.backend.account.AccountStatus;
 import com.moneymanager.backend.account.AccountType;
 import com.moneymanager.backend.account.dto.AccountResponse;
 import com.moneymanager.backend.dashboard.dto.DailyAmount;
@@ -19,10 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,14 +34,22 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard(YearMonth month) {
         User user = currentUser.get();
-        List<Account> accounts = accountRepository.findByUser(user);
+        List<Account> allAccounts = accountRepository.findByUser(user);
 
-        BigDecimal accountsBalance = sumBalance(accounts, t -> t != AccountType.DEPOSIT);
-        BigDecimal depositsBalance = sumBalance(accounts, t -> t == AccountType.DEPOSIT);
+        // Замороженные — отдельно, не входят в totalBalance
+        List<Account> frozen = allAccounts.stream()
+                .filter(a -> a.getStatus() == AccountStatus.FROZEN).toList();
+        List<Account> active = allAccounts.stream()
+                .filter(a -> a.getStatus() == AccountStatus.ACTIVE).toList();
+
+        BigDecimal accountsBalance = sumBalance(active, t -> t != AccountType.DEPOSIT);
+        BigDecimal depositsBalance = sumBalance(active, t -> t == AccountType.DEPOSIT);
         BigDecimal totalBalance = accountsBalance.add(depositsBalance);
+        BigDecimal frozenBalance = frozen.stream()
+                .map(Account::getBalance).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long accountsCount = accounts.stream().filter(a -> a.getType() != AccountType.DEPOSIT).count();
-        long depositsCount = accounts.stream().filter(a -> a.getType() == AccountType.DEPOSIT).count();
+        long accountsCount = active.stream().filter(a -> a.getType() != AccountType.DEPOSIT).count();
+        long depositsCount = active.stream().filter(a -> a.getType() == AccountType.DEPOSIT).count();
 
         LocalDate from = month.atDay(1);
         LocalDate to = month.atEndOfMonth();
@@ -54,8 +60,7 @@ public class DashboardService {
         YearMonth prevMonth = month.minusMonths(1);
         List<Transaction> prevMonthExpenses = transactionRepository
                 .findByUserAndTypeAndDateBetween(user, TransactionType.EXPENSE, prevMonth.atDay(1), prevMonth.atEndOfMonth());
-        BigDecimal prevMonthlyExpenses = sumAmount(prevMonthExpenses);
-        BigDecimal expensesChangePercent = percentChange(prevMonthlyExpenses, monthlyExpenses);
+        BigDecimal expensesChangePercent = percentChange(sumAmount(prevMonthExpenses), monthlyExpenses);
 
         List<com.moneymanager.backend.transaction.dto.TransactionResponse> recentTransactions =
                 transactionRepository.findTop5ByUserOrderByDateDescCreatedAtDesc(user)
@@ -63,7 +68,7 @@ public class DashboardService {
 
         List<DailyAmount> expensesChart = buildDailyChart(monthExpenses, from, to);
 
-        List<AccountResponse> accountResponses = accounts.stream()
+        List<AccountResponse> accountResponses = allAccounts.stream()
                 .sorted(Comparator.comparing(Account::getCreatedAt))
                 .map(AccountResponse::from)
                 .toList();
@@ -78,6 +83,8 @@ public class DashboardService {
                 (int) accountsCount,
                 depositsBalance,
                 (int) depositsCount,
+                frozenBalance,
+                frozen.size(),
                 monthlyExpenses,
                 expensesChangePercent,
                 recentTransactions,
@@ -99,9 +106,7 @@ public class DashboardService {
     }
 
     private BigDecimal percentChange(BigDecimal previous, BigDecimal current) {
-        if (previous.compareTo(BigDecimal.ZERO) == 0) {
-            return null;
-        }
+        if (previous.compareTo(BigDecimal.ZERO) == 0) return null;
         return current.subtract(previous)
                 .divide(previous, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
@@ -112,8 +117,7 @@ public class DashboardService {
         Map<LocalDate, BigDecimal> byDay = transactions.stream()
                 .collect(Collectors.groupingBy(Transaction::getDate, TreeMap::new,
                         Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)));
-
-        List<DailyAmount> result = new java.util.ArrayList<>();
+        List<DailyAmount> result = new ArrayList<>();
         for (LocalDate day = from; !day.isAfter(to); day = day.plusDays(1)) {
             result.add(new DailyAmount(day, byDay.getOrDefault(day, BigDecimal.ZERO)));
         }

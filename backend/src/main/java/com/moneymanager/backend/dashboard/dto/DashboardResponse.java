@@ -13,6 +13,8 @@ public record DashboardResponse(
         int accountsCount,
         BigDecimal depositsBalance,
         int depositsCount,
+        BigDecimal frozenBalance,
+        int frozenCount,
         BigDecimal monthlyExpenses,
         BigDecimal expensesChangePercent,
         List<TransactionResponse> recentTransactions,

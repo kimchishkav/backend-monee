@@ -3,11 +3,7 @@ package com.moneymanager.backend.transaction;
 import com.moneymanager.backend.account.Account;
 import com.moneymanager.backend.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,12 +30,18 @@ public class Transaction {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    /** Только для TRANSFER: счёт-получатель */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_account_id")
+    private Account toAccount;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private TransactionType type;
 
+    /** null для TRANSFER */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private Category category;
 
     @Column(nullable = false, precision = 15, scale = 2)

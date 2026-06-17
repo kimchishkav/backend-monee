@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -36,5 +37,12 @@ public class AccountController {
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/unfreeze")
+    public AccountResponse unfreezeAccount(@PathVariable Long id, @RequestBody Map<String, Long> body) {
+        Long toAccountId = body.get("toAccountId");
+        if (toAccountId == null) throw com.moneymanager.backend.exception.ApiException.badRequest("toAccountId обязателен");
+        return accountService.unfreezeAccount(id, toAccountId);
     }
 }

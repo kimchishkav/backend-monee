@@ -4,8 +4,9 @@ import type { Category, Transaction, TransactionType } from "../types";
 export interface TransactionRequest {
   type: TransactionType;
   amount: number;
-  category: Category;
+  category?: Category | null;
   accountId: number;
+  toAccountId?: number | null;
   date: string;
   description?: string;
 }

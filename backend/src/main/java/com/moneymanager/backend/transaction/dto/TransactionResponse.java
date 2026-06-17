@@ -14,6 +14,8 @@ public record TransactionResponse(
         Category category,
         Long accountId,
         String accountName,
+        Long toAccountId,
+        String toAccountName,
         LocalDate date,
         String description
 ) {
@@ -25,6 +27,8 @@ public record TransactionResponse(
                 t.getCategory(),
                 t.getAccount().getId(),
                 t.getAccount().getName(),
+                t.getToAccount() != null ? t.getToAccount().getId() : null,
+                t.getToAccount() != null ? t.getToAccount().getName() : null,
                 t.getDate(),
                 t.getDescription()
         );

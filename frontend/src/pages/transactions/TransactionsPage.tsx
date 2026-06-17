@@ -77,6 +77,7 @@ export function TransactionsPage() {
             options={[
               { value: "ALL", label: "Все типы" },
               { value: "INCOME", label: "Доходы" },
+              { value: "TRANSFER", label: "Переводы" },
               { value: "EXPENSE", label: "Расходы" },
             ]}
           />

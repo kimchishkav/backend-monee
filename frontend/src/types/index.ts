@@ -1,6 +1,7 @@
 export type AccountType = "CARD" | "CASH" | "DEPOSIT";
+export type AccountStatus = "ACTIVE" | "FROZEN";
 
-export type TransactionType = "INCOME" | "EXPENSE";
+export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER";
 
 export type Category =
   | "FOOD"
@@ -32,15 +33,19 @@ export interface Account {
   name: string;
   type: AccountType;
   balance: number;
+  status: AccountStatus;
+  notes: string | null;
 }
 
 export interface Transaction {
   id: number;
   type: TransactionType;
   amount: number;
-  category: Category;
+  category: Category | null;
   accountId: number;
   accountName: string;
+  toAccountId: number | null;
+  toAccountName: string | null;
   date: string;
   description: string | null;
 }
@@ -57,6 +62,8 @@ export interface DashboardData {
   accountsCount: number;
   depositsBalance: number;
   depositsCount: number;
+  frozenBalance: number;
+  frozenCount: number;
   monthlyExpenses: number;
   expensesChangePercent: number | null;
   recentTransactions: Transaction[];

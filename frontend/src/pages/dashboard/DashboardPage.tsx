@@ -53,7 +53,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           icon={<span>👛</span>}
           iconBg="bg-brand-100"
@@ -78,6 +78,16 @@ export function DashboardPage() {
           hint={`${data.depositsCount} ${data.depositsCount === 1 ? "депозит" : "депозита"}`}
           hintPositive
         />
+        {data.frozenCount > 0 && (
+          <StatCard
+            icon={<span>🔐</span>}
+            iconBg="bg-violet-100"
+            label="Заморожено"
+            value={formatMoney(data.frozenBalance, currency)}
+            hint={`${data.frozenCount} ${data.frozenCount === 1 ? "счет" : "счета"} · не в балансе`}
+            hintPositive={false}
+          />
+        )}
         <StatCard
           icon={<span>📉</span>}
           iconBg="bg-brand-100"

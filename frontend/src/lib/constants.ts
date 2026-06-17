@@ -1,4 +1,4 @@
-import type { AccountType, Category, TransactionType } from "../types";
+import type { AccountStatus, AccountType, Category, TransactionType } from "../types";
 
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   CARD: "Карта",
@@ -9,6 +9,12 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   INCOME: "Доход",
   EXPENSE: "Расход",
+  TRANSFER: "Перевод",
+};
+
+export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
+  ACTIVE: "Активный",
+  FROZEN: "Заморожен",
 };
 
 export const CATEGORY_LABELS: Record<Category, string> = {

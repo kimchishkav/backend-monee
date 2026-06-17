@@ -2,11 +2,7 @@ package com.moneymanager.backend.account;
 
 import com.moneymanager.backend.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -37,6 +33,14 @@ public class Account {
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    @Builder.Default
+    private AccountStatus status = AccountStatus.ACTIVE;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
 
     @Column(name = "created_at", nullable = false)
     @Builder.Default
