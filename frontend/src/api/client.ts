@@ -1,9 +1,11 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+// Relative path — goes through Vite dev proxy (/api → http://localhost:8080/api).
+// In production set VITE_API_BASE to the full backend URL (e.g. https://api.example.com/api).
+const BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 export const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: BASE,
 });
 
 api.interceptors.request.use((config) => {
