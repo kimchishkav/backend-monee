@@ -37,7 +37,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 10)
+    @Column(length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'RUB' NOT NULL")
     @Builder.Default
     private String currency = "RUB";
 
@@ -45,7 +45,7 @@ public class User implements UserDetails {
     private BigDecimal monthlyLimit;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'LIGHT' NOT NULL")
     @Builder.Default
     private Theme theme = Theme.LIGHT;
 

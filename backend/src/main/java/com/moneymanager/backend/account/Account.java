@@ -35,7 +35,7 @@ public class Account {
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'ACTIVE' NOT NULL")
     @Builder.Default
     private AccountStatus status = AccountStatus.ACTIVE;
 
