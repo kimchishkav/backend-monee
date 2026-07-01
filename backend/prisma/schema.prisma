@@ -1,0 +1,96 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  currency     String        @default("RUB")
+  monthlyLimit Decimal?      @map("monthly_limit") @db.Decimal(15, 2)
+  theme        Theme         @default(LIGHT)
+  avatar       String?       @db.Text
+  createdAt    DateTime      @default(now()) @map("created_at")
+  accounts     Account[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+model Account {
+  id             Int           @id @default(autoincrement())
+  userId         Int           @map("user_id")
+  user           User          @relation(fields: [userId], references: [id])
+  name           String
+  type           AccountType
+  balance        Decimal       @db.Decimal(15, 2)
+  status         AccountStatus @default(ACTIVE)
+  notes          String?       @db.Text
+  createdAt      DateTime      @default(now()) @map("created_at")
+  transactions   Transaction[] @relation("FromAccount")
+  toTransactions Transaction[] @relation("ToAccount")
+
+  @@map("accounts")
+}
+
+enum AccountType {
+  CARD
+  CASH
+  DEPOSIT
+}
+
+enum AccountStatus {
+  ACTIVE
+  FROZEN
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  userId      Int             @map("user_id")
+  user        User            @relation(fields: [userId], references: [id])
+  accountId   Int             @map("account_id")
+  account     Account         @relation("FromAccount", fields: [accountId], references: [id])
+  toAccountId Int?            @map("to_account_id")
+  toAccount   Account?        @relation("ToAccount", fields: [toAccountId], references: [id])
+  type        TransactionType
+  amount      Decimal         @db.Decimal(15, 2)
+  category    Category?
+  date        DateTime        @db.Date
+  description String?
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum Category {
+  FOOD
+  TRANSPORT
+  CLOTHES
+  HEALTH
+  ENTERTAINMENT
+  EDUCATION
+  UTILITIES
+  OTHER
+  SALARY
+  GIFT
+  OTHER_INCOME
+}
